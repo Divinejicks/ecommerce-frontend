@@ -4,20 +4,28 @@ import { OrderService } from "../../services/orderService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AppRoutesPaths } from "../../components/routes/app-routes";
+import { useAuthentication } from "../../utils/provider";
 
 export const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const { isAdmin } = useAuthentication()
 
   const navigate = useNavigate();
 
   const fetchOrders = async () => {
     try {
-      const res = await OrderService.GetMyOrders(page, pageSize);
-      setOrders(res.data.data);
-      setTotal(res.total);
+      if (isAdmin) {
+        const res = await OrderService.GetAllOrders(page, pageSize);
+        setOrders(res.data.data);
+        setTotal(res.total);
+      } else {
+        const res = await OrderService.GetMyOrders(page, pageSize);
+        setOrders(res.data.data);
+        setTotal(res.total);
+      }
     } catch (err) {
       toast.error("Failed to fetch orders");
       console.error(err);
@@ -96,7 +104,7 @@ export const OrdersPage = () => {
                     title: "Price",
                     dataIndex: "price",
                     key: "price",
-                    render: (price) => `$${price.toFixed(2)}`,
+                    render: (price) => `FCFA ${price.toFixed(2)}`,
                   },
                 ]}
               />
