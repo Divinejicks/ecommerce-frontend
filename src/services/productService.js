@@ -7,7 +7,8 @@ export const ProductService = {
             const response = await httpClient.get(`product/get-all-paginated?page=${page}&pageSize=${pageSize}`)
             if (response.status === 200) {
                 return response
-            } else {
+            } 
+            else {
                 toast.error(response.data.message)
                 return false
             }

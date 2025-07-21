@@ -1,60 +1,64 @@
 import { useEffect, useState } from "react";
 import { Modal, Input, Button } from "antd";
 import { toast } from "react-toastify";
-import httpClient from "../../components/httpClient/httpClient";
 import { useAuthentication } from "../../utils/provider";
 import { AuthService } from "../../services/authService";
 import { DashboardService } from "../../services/dashboardService";
+import { RefreshTokenAccess } from "../../utils/refresh-token";
 
 export const DashboardPage = () => {
     const [data, setData] = useState(null);
     const [showLogin, setShowLogin] = useState(false);
     const [credentials, setCredentials] = useState({ email: "", password: "" });
-    const { getCurrentUser, isAdmin, currentUser } = useAuthentication()
+    const { getCurrentUser, isAdmin, currentUser } = useAuthentication();
 
     useEffect(() => {
-        const token = localStorage.getItem("token_key");
+        const initialize = async () => {
+            const token = localStorage.getItem("token_key");
+            const refreshToken = localStorage.getItem("token_key_refresh");
 
-        if (!token || isTokenExpired(token)) {
-            setShowLogin(true);
-        } else {
-            fetchData(token);
-        }
+            if (!token && refreshToken) {
+                try {
+                    await RefreshTokenAccess(); 
+                    return;
+                } catch (err) {
+                    setShowLogin(true);
+                    return;
+                }
+            }
+
+            if (!token && !refreshToken) {
+                setShowLogin(true);
+                return;
+            }
+
+            fetchData();
+        };
+
+        initialize();
     }, [isAdmin, currentUser]);
-
-    const isTokenExpired = (token) => {
-        try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            return payload.exp * 1000 < Date.now();
-        } catch (e) {
-            return true;
-        }
-    };
 
     const fetchData = async () => {
         try {
-            if(isAdmin) {
-                const res = await DashboardService.GetDashboardData()
-                setData(res);
-            } else {
-                const res = await DashboardService.GetUserDashboardData()
-                setData(res);
-            }
+            const res = isAdmin
+                ? await DashboardService.GetDashboardData()
+                : await DashboardService.GetUserDashboardData();
+            setData(res);
         } catch (err) {
-            toast.error("Error fetching data", err);
+            toast.error("Error fetching data");
             setShowLogin(true);
         }
     };
 
     const handleLogin = async () => {
-         const res = await AuthService.SignInAuth(credentials, getCurrentUser)
-            if (res) {
-                toast.success("Login successfully")
-                setShowLogin(false);
-                fetchData();
-            } else {
-                toast.error("Invalid credentials")
-            }
+        const res = await AuthService.SignInAuth(credentials, getCurrentUser);
+        if (res) {
+            toast.success("Login successfully");
+            setShowLogin(false);
+            fetchData();
+        } else {
+            toast.error("Invalid credentials");
+        }
     };
 
     return (
@@ -81,7 +85,7 @@ export const DashboardPage = () => {
                             setCredentials({ ...credentials, password: e.target.value })
                         }
                     />
-                    <Button type="primary" onClick={() => handleLogin()} block>
+                    <Button type="primary" onClick={handleLogin} block>
                         Login
                     </Button>
                 </div>

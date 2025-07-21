@@ -7,10 +7,10 @@ import { useAuthentication } from "../../utils/provider";
 export const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const { isAdmin } = useAuthentication()
+  const { isAdmin, onLogout } = useAuthentication()
 
   const handleLogout = () => {
-    localStorage.removeItem("token_key");
+    onLogout()
     navigate("/");
     window.location.reload()
   };

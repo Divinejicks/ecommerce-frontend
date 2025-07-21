@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import constate from "constate";
 import httpClient from "../components/httpClient/httpClient";
+import { RefreshTokenAccess } from "./refresh-token";
 
 export const [ContextProvider, useAuthentication] = constate(
     useLogin,
@@ -38,12 +39,10 @@ function useLogin() {
                     setIsAdmin(false)
                 }
             } else {
-                setCurrentUser("")
-                window.location.href = "/"
+                await RefreshTokenAccess()
             }
         } catch (error) {
-            setCurrentUser("")
-            window.location.href = "/"
+            await RefreshTokenAccess()
         }
     }
 
@@ -57,6 +56,7 @@ function useLogin() {
 
     const clearLocalStorage = () => {
         localStorage.removeItem("token_key")
+        localStorage.removeItem("token_key_refresh")
     };
 
     const onLogout = () => {

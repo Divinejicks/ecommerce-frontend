@@ -6,7 +6,8 @@ export const AuthService  = {
         try {
             const response = await httpClient.post("auth/signin", payload)
             if (response.status === 200) {
-                localStorage.setItem("token_key", response.data.access_token)
+                localStorage.setItem("token_key", response.data.accessToken.access_token)
+                localStorage.setItem("token_key_refresh", response.data.refreshToken.refresh_token)
 
                 await getCurrentUser()
                 return true

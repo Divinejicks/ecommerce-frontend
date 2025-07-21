@@ -1,17 +1,29 @@
+import { RefreshTokenAccess } from "../../utils/refresh-token";
+
 const ErrorInterceptor = (axiosInstance) => {
+  axiosInstance.interceptors.response.use(
+    res => res,
+    async (error) => {
+      const originalRequest = error.config;
 
-    axiosInstance.interceptors.response.use(
-        res => {
-            return res;
-        },
-        error => {
-            console.group("Error");
-            console.log(error);
-            console.groupEnd();
+      if (
+        error.response?.status === 401 &&
+        !originalRequest._retry &&
+        localStorage.getItem("token_key_refresh")
+      ) {
+        originalRequest._retry = true;
 
-            return error.response
+        const newAccessToken = await RefreshTokenAccess();
+
+        if (newAccessToken) {
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return axiosInstance(originalRequest);
         }
-    )
-}
+      }
+
+      return Promise.reject(error);
+    }
+  );
+};
 
 export default ErrorInterceptor;

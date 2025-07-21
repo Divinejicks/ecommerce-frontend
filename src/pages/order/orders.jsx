@@ -52,7 +52,7 @@ export const OrdersPage = () => {
       title: "Total Amount",
       dataIndex: "totalAmount",
       key: "totalAmount",
-      render: (amount) => `$${amount.toFixed(2)}`,
+      render: (amount) => `FCFA ${amount.toFixed(2)}`,
     },
     {
       title: "Status",
