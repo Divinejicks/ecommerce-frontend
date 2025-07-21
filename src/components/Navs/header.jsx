@@ -37,7 +37,7 @@ export const Header = () => {
         <Button
           type="primary"
           icon={<Plus />}
-          onClick={() => navigate("/products/new")}
+          onClick={() => navigate("/products/create-product")}
           className="bg-blue-600 hover:bg-blue-700 border-none"
         >
           New Product

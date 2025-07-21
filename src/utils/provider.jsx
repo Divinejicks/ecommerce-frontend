@@ -26,12 +26,18 @@ function useLogin() {
     }, [currentUser, isAuthenticated]);
 
     const getCurrentUser = async () => {
-        const token = localStorage.getItem("token_key")
-        if (token) {
-            const response = await httpClient.get(`users/user-info`)
-            setCurrentUser(response.data)
-        } else {
+        try {
+            const token = localStorage.getItem("token_key")
+            if (token) {
+                const response = await httpClient.get(`users/user-info`)
+                setCurrentUser(response.data)
+            } else {
+                setCurrentUser("")
+                window.location.href = "/"
+            }
+        } catch (error) {
             setCurrentUser("")
+            window.location.href = "/"
         }
     }
 
