@@ -10,7 +10,7 @@ export const DashboardPage = () => {
     const [data, setData] = useState(null);
     const [showLogin, setShowLogin] = useState(false);
     const [credentials, setCredentials] = useState({ email: "", password: "" });
-    const { getCurrentUser } = useAuthentication()
+    const { getCurrentUser, isAdmin, currentUser } = useAuthentication()
 
     useEffect(() => {
         const token = localStorage.getItem("token_key");
@@ -20,7 +20,7 @@ export const DashboardPage = () => {
         } else {
             fetchData(token);
         }
-    }, []);
+    }, [isAdmin, currentUser]);
 
     const isTokenExpired = (token) => {
         try {
@@ -33,8 +33,13 @@ export const DashboardPage = () => {
 
     const fetchData = async () => {
         try {
-            const res = await DashboardService.GetDashboardData()
-            setData(res);
+            if(isAdmin) {
+                const res = await DashboardService.GetDashboardData()
+                setData(res);
+            } else {
+                const res = await DashboardService.GetUserDashboardData()
+                setData(res);
+            }
         } catch (err) {
             toast.error("Error fetching data", err);
             setShowLogin(true);
@@ -43,7 +48,6 @@ export const DashboardPage = () => {
 
     const handleLogin = async () => {
          const res = await AuthService.SignInAuth(credentials, getCurrentUser)
-            console.log("resd", res)
             if (res) {
                 toast.success("Login successfully")
                 setShowLogin(false);
@@ -86,7 +90,7 @@ export const DashboardPage = () => {
             {!showLogin && data && (
                 <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 dark:bg-dark-900 min-h-screen">
                     <Card title="Total Orders" value={data.totalOrders} />
-                    <Card title="Total Users" value={data.totalUsers} />
+                    {isAdmin && <Card title="Total Users" value={data.totalUsers} />}
                     <Card title="Total Products" value={data.totalProducts} />
                     <Card title="Top Products" value={data.topThreeProducts.length} />
 

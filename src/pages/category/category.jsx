@@ -12,7 +12,7 @@ export const CategoryPage = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
-  const {ensureLogin, currentUser} = useAuthentication()
+  const { ensureLogin, currentUser, isAdmin } = useAuthentication()
 
   useEffect(() => {
     ensureLogin()
@@ -66,13 +66,15 @@ export const CategoryPage = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold dark:text-white">Categories</h1>
-        <Button
-          icon={<Plus />}
-          type="default"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Add Category
-        </Button>
+        {isAdmin && (
+          <Button
+            icon={<Plus />}
+            type="default"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add Category
+          </Button>
+        )}
       </div>
 
       <Table

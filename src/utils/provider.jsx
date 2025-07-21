@@ -10,6 +10,7 @@ export const [ContextProvider, useAuthentication] = constate(
 function useLogin() {
     const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem("token_key") !== null)
     const [currentUser, setCurrentUser] = useState("")
+    const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
         setIsAuthenticated(localStorage.getItem("token_key") !== null)
@@ -31,6 +32,11 @@ function useLogin() {
             if (token) {
                 const response = await httpClient.get(`users/user-info`)
                 setCurrentUser(response.data)
+                if(response.data.roles.includes("ADMIN")) {
+                    setIsAdmin(true)
+                } else {
+                    setIsAdmin(false)
+                }
             } else {
                 setCurrentUser("")
                 window.location.href = "/"
@@ -63,14 +69,16 @@ function useLogin() {
             clearLocalStorage,
             onLogout,
             getCurrentUser,
-            currentUser
+            currentUser,
+            isAdmin
         }),
         [
             ensureLogin,
             clearLocalStorage,
             onLogout,
             getCurrentUser,
-            currentUser
+            currentUser,
+            isAdmin
         ]
     );
 

@@ -2,10 +2,12 @@ import { Moon, Sun, Plus, LogOut } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
 import { Button, Dropdown, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useAuthentication } from "../../utils/provider";
 
 export const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const { isAdmin } = useAuthentication()
 
   const handleLogout = () => {
     localStorage.removeItem("token_key");
@@ -34,14 +36,16 @@ export const Header = () => {
       <h2 className="text-lg font-bold dark:text-white">Dashboard</h2>
 
       <div className="flex items-center gap-4">
-        <Button
-          type="primary"
-          icon={<Plus />}
-          onClick={() => navigate("/products/create-product")}
-          className="bg-blue-600 hover:bg-blue-700 border-none"
-        >
-          New Product
-        </Button>
+        {isAdmin && (
+          <Button
+            type="primary"
+            icon={<Plus />}
+            onClick={() => navigate("/products/create-product")}
+            className="bg-blue-600 hover:bg-blue-700 border-none"
+          >
+            New Product
+          </Button>
+        )}
 
         <button
           className="text-white bg-dark-700 hover:bg-black/70 dark:hover:bg-white/10 p-2 rounded-lg transition-colors cursor-pointer"
